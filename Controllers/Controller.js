@@ -19,6 +19,58 @@ class SegmentsController
         return result;
     }
 
+    slope(leftPoint,rightPoint)
+    {
+        if(rightPoint.x == leftPoint.x) return 9007199254740992; //max value computable
+        return (rightPoint.y - leftPoint.y) / (rightPoint.x - leftPoint.x);
+    }
+
+    verifyIfPointIsInteriorToTriangle(point,triangle)
+    {
+        if(point.x == triangle[0].x && point.y == triangle[0].y
+            || point.x == triangle[1].x && point.y == triangle[1].y 
+            || point.x == triangle[2].x && point.y == triangle[2].y) 
+       {
+           return {"color":4, "description": "The point is over a triangle's vertex"};
+       }
+
+        triangle.sort(function(a,b){
+            if(a.x == b.x ) return a.y - b.y;
+            return a.x - b.x;
+        });    
+        if(this.slope(triangle[0],triangle[2]) < this.slope(triangle[0],triangle[1])) 
+        {
+            triangle[2] = [triangle[1], triangle[1] = triangle[2]][0];
+        }  
+        //Segment are ordered counter-clockwise
+        var segment1 = new Segment(new Point(triangle[0]),new Point(triangle[1]));
+        var segment2 = new Segment(new Point(triangle[1]),new Point(triangle[2]));
+        var segment3 = new Segment(new Point(triangle[2]),new Point(triangle[0])); 
+
+        var pointPositionRelativeToSegment1 = this.relativePointPositionRespectSegment(point,segment1);
+        var pointPositionRelativeToSegment2 = this.relativePointPositionRespectSegment(point,segment2);
+        var pointPositionRelativeToSegment3 = this.relativePointPositionRespectSegment(point,segment3);
+
+        if(pointPositionRelativeToSegment1 == this.Position.left &&
+             pointPositionRelativeToSegment2 == this.Position.left &&
+             pointPositionRelativeToSegment3 == this.Position.left) 
+             {
+                 return {"color":2, "description":"The point("+point.x+","+point.y+") is Interior"};
+             }
+        if((pointPositionRelativeToSegment1 == this.Position.inline &&
+             pointPositionRelativeToSegment2 == this.Position.left &&
+             pointPositionRelativeToSegment3 == this.Position.left) ||
+             (pointPositionRelativeToSegment1 == this.Position.left &&
+             pointPositionRelativeToSegment2 == this.Position.inline &&
+             pointPositionRelativeToSegment3 == this.Position.left) ||
+             (pointPositionRelativeToSegment1 == this.Position.left &&
+             pointPositionRelativeToSegment2 == this.Position.left &&
+             pointPositionRelativeToSegment3 == this.Position.inline)) 
+        {
+            return {"color":0, "description": "The point is over a triangle's segment"};
+        }
+        return {"color": 1, "description": "The point is outside the triangle"};
+    }
 
     verifyIntersectionBetween(segmentA,segmentB)
     {

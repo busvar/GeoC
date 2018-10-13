@@ -9,7 +9,8 @@ function domloaded(){
     // See names colors at https://www.w3schools.com/colors/colors_names.asp
     // Add as many colors as needed to classify all intersection types
     var colors = ['Blue', 'Red', 'Green', 'Cyan', 'DarkOrange', 'Magenta', 'RosyBrown'];
-
+    // added by busvar: Access to controller logic
+    var sCtrll = new SegmentsController();
     // default styles
     style = {
     curve: {
@@ -89,7 +90,7 @@ function domloaded(){
     // Outputs the value of the intersection classification to the "results" HTML element
     function reportResult(intersectionClass) {
         var text = "<font color='" + colors[intersectionClass.type] + "'>";
-        text = text + Object.keys(new SegmentsController().Intersection)[intersectionClass.type] + ": " + intersectionClass.description;
+        text = text + Object.keys(sCtrll.Intersection)[intersectionClass.type] + ": " + intersectionClass.description;
         text = text + "</font><br>";
         document.getElementById('result').innerHTML = document.getElementById('result').innerHTML + text;
     }
@@ -113,7 +114,7 @@ function domloaded(){
             */
         // Return object with two fields: a numbered type, and a description
         // return {"type": intersectionType, "description": intersectionTypeDescription}
-       var sCtrll = new SegmentsController();
+       
         return sCtrll.verifyIntersectionBetween(s1,s2);
     }
 
