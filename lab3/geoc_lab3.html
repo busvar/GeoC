@@ -26,6 +26,8 @@ Note: show result by coloring each point differently depending on its situation 
 <h2>Result of (an absurd) classification</h2>
 <span id="result"></span>
 
+<script type="text/javascript" src="../Models/Models.js"></script>
+<script type="text/javascript" src="../Controllers/Controller.js"></script>
 <script type="text/javascript">
 
 //========= Auxiliary objects and data =========//
@@ -41,6 +43,7 @@ var currentJSON = inputJSONs[0];
 // Some colors you could use
 var colors = ['Blue', 'Red', 'Green', 'Cyan', 'DarkOrange', 'Magenta', 'RosyBrown'];
 
+var controller = new SegmentsController();
 // default styles
 style = {
   curve: {
@@ -136,10 +139,13 @@ function changeDataSet() {
 
 // TODO: Add your code here to classify the point w.r.t. the circle given by three points
 function classifyPoint(p, circle_points) {
-	// TODO Change this!
+  // TODO Change this!
+  /*
 	var color = colors[Math.floor(Math.random()*5)];
 	var description = "Random classification with color " + color;
-	return {"color": color, "description": description} ;
+  return {"color": color, "description": description} ;*/
+  var result = controller.verifyPointToCircle(p,circle_points);
+  return {"color": colors[result.color], "description": result.description};
 }
 
 </script>

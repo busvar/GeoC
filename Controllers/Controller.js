@@ -3,7 +3,7 @@ class SegmentsController
 {
     constructor()
     {
-        this.Position = Object.freeze({"left" : 0, "inline" : 1, "right": 2});
+        this.Position = Object.freeze({"left" : 0, "inline" : 1, "right": 2, "interior":3, "exterior":4});
         this.Intersection = Object.freeze({"none":0,"semiIntersect":1,"intersect":2, 
             "completeIntersect":3, "endIntersection":4});
     }
@@ -19,10 +19,53 @@ class SegmentsController
         return result;
     }
 
+    // Circle must be an array of 3 points not align
+    relativePointPositionRespectCircle(point,circle)
+    {
+        circle = this.counterClockWiseSortOf3Points(circle); 
+        var d1 = (circle[1].x - circle[0].x) * (circle[2].y - circle[0].y) *
+         ((point.x - circle[0].x)*(point.x + circle[0].x) + 
+         (point.y - circle[0].y)*(point.y + circle[0].y)); 
+        var d2 = (circle[2].x - circle[0].x) * (point.y - circle[0].y) *
+         ((circle[1].x - circle[0].x)*(circle[1].x + circle[0].x) +
+         (circle[1].y - circle[0].y)*(circle[1].y + circle[0].y));
+        var d3 = (point.x - circle[0].x) * (circle[1].y - circle[0].y) *
+        ((circle[2].x - circle[0].x)*(circle[2].x + circle[0].x) +
+        (circle[2].y - circle[0].y)*(circle[2].y + circle[0].y));
+        var d4 = (point.x - circle[0].x) * (circle[2].y - circle[0].y) *
+        ((circle[1].x - circle[0].x)*(circle[1].x + circle[0].x) +
+        (circle[1].y - circle[0].y)*(circle[1].y + circle[0].y));
+        var d5 = (circle[2].x - circle[0].x) * (circle[1].y-circle[0].y) * 
+        ((point.x - circle[0].x)*(point.x + circle[0].x) + 
+         (point.y - circle[0].y)*(point.y + circle[0].y)); 
+        var d6 = (circle[1].x - circle[0].x) * (point.y - circle[0].y) * 
+        ((circle[2].x - circle[0].x)*(circle[2].x + circle[0].x) +
+        (circle[2].y - circle[0].y)*(circle[2].y + circle[0].y));
+        var det = d1+d2+d3-d4-d5-d6;
+
+        if(det < 0) return this.Position.interior;
+        if(det == 0) return this.Position.inline;
+        return this.Position.exterior; 
+    }
+
     slope(leftPoint,rightPoint)
     {
         if(rightPoint.x == leftPoint.x) return 9007199254740992; //max value computable
         return (rightPoint.y - leftPoint.y) / (rightPoint.x - leftPoint.x);
+    }
+
+    counterClockWiseSortOf3Points(points)
+    {
+        points.sort(function(a,b){
+            if(a.x == b.x ) return a.y - b.y;
+            return a.x - b.x;
+        });   
+        if(this.slope(points[0],points[2]) < this.slope(points[0],points[1])) 
+        {
+            points[2] = [points[1], points[1] = points[2]][0];
+        }  
+
+        return points;
     }
 
     verifyIfPointIsInteriorToTriangle(point,triangle)
@@ -34,14 +77,7 @@ class SegmentsController
            return {"color":4, "description": "The point is over a triangle's vertex"};
        }
 
-        triangle.sort(function(a,b){
-            if(a.x == b.x ) return a.y - b.y;
-            return a.x - b.x;
-        });    
-        if(this.slope(triangle[0],triangle[2]) < this.slope(triangle[0],triangle[1])) 
-        {
-            triangle[2] = [triangle[1], triangle[1] = triangle[2]][0];
-        }  
+        triangle = this.counterClockWiseSortOf3Points(triangle);
         //Segment are ordered counter-clockwise
         var segment1 = new Segment(new Point(triangle[0]),new Point(triangle[1]));
         var segment2 = new Segment(new Point(triangle[1]),new Point(triangle[2]));
@@ -152,5 +188,19 @@ class SegmentsController
             }
             return {"type" : type, 
             "description": "s1 starts to the  " + Object.keys(this.Position)[positionBeginPointOfSegmentA] + " of segmentB."};
+    }
+    
+    verifyPointToCircle(point,circle)
+    {
+        var relativePosition = this.relativePointPositionRespectCircle(point,circle);
+        if(relativePosition == this.Position.exterior) 
+        {
+            return {"color":1,"description":"The point is exterior to the Circle"};
+        }
+        if(relativePosition == this.Position.inline) 
+        {
+            return {"color":0,"description":"The point is in the boundary of the circle"};
+        }
+        return {"color":2,"description":"The point is interion to the circle"};
     }
 }
