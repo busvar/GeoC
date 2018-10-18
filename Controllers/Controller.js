@@ -22,7 +22,6 @@ class SegmentsController
     // Circle must be an array of 3 points not align
     relativePointPositionRespectCircle(point,circle)
     {
-        circle = this.counterClockWiseSortOf3Points(circle); 
         var d1 = (circle[1].x - circle[0].x) * (circle[2].y - circle[0].y) *
          ((point.x - circle[0].x)*(point.x + circle[0].x) + 
          (point.y - circle[0].y)*(point.y + circle[0].y)); 

@@ -107,6 +107,8 @@ function drawCircle(ctx, style) {
 // Draws all input points, with its classification color
 function drawPoints(ctx, style, points) {
 
+  circle_points = controller.counterClockWiseSortOf3Points(circle_points); 
+
 	for (var i = 0; i < points.length; i++) {
 	
 		var result = classifyPoint(points[i], circle_points);
